@@ -1,56 +1,107 @@
-import express from 'express'
-const app=express()
-import bodyParser from 'body-parser'
-import dotenv from 'dotenv'
-dotenv.config()
-//db and authenticate user
-import connectDB from './db/connect.js'
+// import express from 'express'
+// const app=express()
+// import bodyParser from 'body-parser'
+// import dotenv from 'dotenv'
+// dotenv.config()
+// //db and authenticate user
+// import connectDB from './db/connect.js'
 
-import 'express-async-errors'
-import morgan from 'morgan'
-//routers
-import authRouter from './routes/authRoutes.js'
-import followersFollowingRoutes from './routes/followerRoutes.js'
-import subGredditRoutes from './routes/subGredditRoutes.js'
+// import 'express-async-errors'
+// import morgan from 'morgan'
+// //routers
+// import authRouter from './routes/authRoutes.js'
+// import followersFollowingRoutes from './routes/followerRoutes.js'
+// import subGredditRoutes from './routes/subGredditRoutes.js'
 
-//middleware
-import notFoundMiddleware from './middleware/notFound.js'
-import errorHandlerMiddleware from './middleware/errorHandler.js'
-import auth from './middleware/authorisation.js'
+// //middleware
+// import notFoundMiddleware from './middleware/notFound.js'
+// import errorHandlerMiddleware from './middleware/errorHandler.js'
+// import auth from './middleware/authorisation.js'
 
-if(process.env.NODE_ENV!=='production')
-{
-    app.use(morgan('dev'))
+// if(process.env.NODE_ENV!=='production')
+// {
+//     app.use(morgan('dev'))
+// }
+
+// app.use(express.json())
+// app.use(bodyParser.urlencoded({ extended: true }));
+
+// app.get('/',(req,res)=>{
+//     res.json({msg:'Welcome'})
+// })
+// app.use('/api/v1/subGreddit',auth,subGredditRoutes)
+// app.use('/api/v1/auth',authRouter)
+// app.use('/api/v1/fol', auth,followersFollowingRoutes);
+
+// app.use(notFoundMiddleware)
+// app.use(errorHandlerMiddleware)
+
+// const port=process.env.PORT||8000
+
+// // app.listen(port,()=>{
+// //     console.log(`server is listening on port:${port}...`)
+// // })
+
+// const start=async()=>{
+//     try {
+//         await connectDB(process.env.MONGO_URL)
+//         app.listen(port,()=>{
+//             console.log(`server  listening on port:${port}...`)
+//         })
+//     } catch (error) {
+//         console.log(error)
+//     }
+// }
+
+// start()
+import express from 'express';
+import bodyParser from 'body-parser';
+import dotenv from 'dotenv';
+import cors from 'cors'; // Import the cors middleware
+import connectDB from './db/connect.js';
+import 'express-async-errors';
+import morgan from 'morgan';
+import authRouter from './routes/authRoutes.js';
+import followersFollowingRoutes from './routes/followerRoutes.js';
+import subGredditRoutes from './routes/subGredditRoutes.js';
+import notFoundMiddleware from './middleware/notFound.js';
+import errorHandlerMiddleware from './middleware/errorHandler.js';
+import auth from './middleware/authorisation.js';
+
+dotenv.config();
+const app = express();
+const port = process.env.PORT || 8000;
+
+// Enable CORS
+app.use(cors());
+
+if (process.env.NODE_ENV !== 'production') {
+  app.use(morgan('dev'));
 }
 
-app.use(express.json())
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/',(req,res)=>{
-    res.json({msg:'Welcome'})
-})
-app.use('/api/v1/subGreddit',auth,subGredditRoutes)
-app.use('/api/v1/auth',authRouter)
-app.use('/api/v1/fol', auth,followersFollowingRoutes);
+app.get('/', (req, res) => {
+  res.json({ msg: 'Welcome' });
+});
 
-app.use(notFoundMiddleware)
-app.use(errorHandlerMiddleware)
+app.use('/api/v1/subGreddit', auth, subGredditRoutes);
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/fol', auth, followersFollowingRoutes);
 
-const port=process.env.PORT||8000
+app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
 
-// app.listen(port,()=>{
-//     console.log(`server is listening on port:${port}...`)
-// })
+const start = async () => {
+  try {
+    await connectDB(process.env.MONGO_URL);
+    app.listen(port, () => {
+      console.log(`Server listening on port:${port}...`);
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-const start=async()=>{
-    try {
-        await connectDB(process.env.MONGO_URL)
-        app.listen(port,()=>{
-            console.log(`server  listening on port:${port}...`)
-        })
-    } catch (error) {
-        console.log(error)
-    }
-}
-
-start()
+start();
